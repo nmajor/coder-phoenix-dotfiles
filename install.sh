@@ -1,94 +1,66 @@
 #!/bin/bash
 
-set -e
+set -euo pipefail
 
-echo "🚀 Setting up dotfiles..."
+echo "🚀 Setting up Elixir Phoenix development environment..."
 
-# DOTFILES_DIR="$HOME/.dotfiles"
-# CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export OTP_VERSION="28.1"
+export ELIXIR_VERSION="1.18.4"
+export NODE_VERSION="22.10.0"
 
-# # Function to create symlink with backup
-# link_file() {
-#     local src="$1"
-#     local dest="$2"
+# Make versions available to subscripts and resolve script dir
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-#     # Create directory if it doesn't exist
-#     mkdir -p "$(dirname "$dest")"
+# Install minimal dependencies (no compilation needed!)
+echo "📦 Installing minimal dependencies..."
+sudo apt-get update
+sudo apt-get install -y curl unzip zsh git inotify-tools
 
-#     # Backup existing file if it exists and isn't a symlink
-#     if [[ -f "$dest" && ! -L "$dest" ]]; then
-#         echo "📦 Backing up existing $dest to $dest.backup"
-#         mv "$dest" "$dest.backup"
-#     fi
+# Install Erlang/OTP and Elixir (delegated)
+bash "$SCRIPT_DIR/install_elixir_erlang_otp.sh"
 
-#     # Remove existing symlink
-#     if [[ -L "$dest" ]]; then
-#         rm "$dest"
-#     fi
+# Install Node.js (delegated)
+bash "$SCRIPT_DIR/install_nodejs.sh"
 
-#     # Create new symlink
-#     echo "🔗 Linking $src -> $dest"
-#     ln -sf "$src" "$dest"
-# }
+# Create app directory and set as default
+echo "📁 Creating app directory..."
+mkdir -p /home/coder/app
 
-# # Copy dotfiles to ~/.dotfiles if not already there
-# if [[ "$CURRENT_DIR" != "$DOTFILES_DIR" ]]; then
-#     echo "📁 Copying dotfiles to $DOTFILES_DIR"
-#     mkdir -p "$DOTFILES_DIR"
-#     cp -R "$CURRENT_DIR"/* "$DOTFILES_DIR/"
-#     cd "$DOTFILES_DIR"
-# else
-#     cd "$CURRENT_DIR"
-# fi
 
-# # Link all dotfiles
-# echo "🔗 Creating symlinks..."
+# Setup zsh with Oh My Zsh and Starship prompt
+echo "🐚 Setting up zsh with Oh My Zsh and Starship prompt..."
+# Install Oh My Zsh (skip if already exists)
+if [ -d "$HOME/.oh-my-zsh" ]; then
+    echo "Oh My Zsh is already installed, skipping installation."
+else
+    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+fi
 
-# # Link individual dotfiles
-# for file in dot-*; do
-#     if [[ -f "$file" ]]; then
-#         # Remove 'dot-' prefix and add '.' prefix for home directory
-#         target="$HOME/.${file#dot-}"
-#         link_file "$DOTFILES_DIR/$file" "$target"
-#     fi
-# done
+# Install Starship prompt
+echo "⭐ Installing Starship prompt..."
+curl -sS https://starship.rs/install.sh | sh -s -- --yes
 
-# # Link config directories
-# if [[ -d "config" ]]; then
-#     for config_dir in config/*/; do
-#         if [[ -d "$config_dir" ]]; then
-#             dir_name=$(basename "$config_dir")
-#             link_file "$DOTFILES_DIR/$config_dir" "$HOME/.config/$dir_name"
-#         fi
-#     done
-# fi
+# Change default shell to zsh
+sudo chsh -s $(which zsh) coder
 
-# # Install packages (if package list exists)
-# if [[ -f "packages.txt" ]]; then
-#     echo "📦 Installing packages..."
-
-#     # Detect package manager and install
-#     if command -v apt-get >/dev/null 2>&1; then
-#         echo "Using apt-get..."
-#         sudo apt-get update
-#         xargs sudo apt-get install -y < packages.txt
-#     elif command -v yum >/dev/null 2>&1; then
-#         echo "Using yum..."
-#         xargs sudo yum install -y < packages.txt
-#     elif command -v brew >/dev/null 2>&1; then
-#         echo "Using brew..."
-#         xargs brew install < packages.txt
-#     else
-#         echo "⚠️  No supported package manager found. Please install packages manually:"
-#         cat packages.txt
-#     fi
-# fi
-
-# # Run custom setup scripts
-# if [[ -f "setup/custom.sh" ]]; then
-#     echo "🛠️  Running custom setup..."
-#     bash setup/custom.sh
-# fi
+echo "🎉 Environment ready!"
+echo "📊 Database: postgres://postgres:postgres@localhost:5432"
+echo "📁 Default directory: ~/app (automatically set for SSH sessions)"
+echo "🚀 Create Phoenix app: cd ~/app && mix phx.new my_app"
+echo "🗄️ Setup database: mix ecto.create"
+echo "🌐 Start server: mix phx.server"
+echo ""
+echo "📋 Installed versions:"
+echo "  • Erlang: $(erl -eval 'erlang:display(erlang:system_info(otp_release)), halt().' -noshell)"
+echo "  • Elixir: $(elixir --version | head -n1)"
+echo "  • Node: $(node -v)"
+echo "  • npm: $(npm -v)"
+echo "  • Shell: $(zsh --version)"
+echo "📝 Note: Pre-built binaries installed - no compilation required!"
+echo "📝 Note: Databases persist across workspace restarts"
+echo "🐚 Note: zsh with Oh My Zsh and Starship prompt configured with Phoenix aliases"
+echo "📁 Note: ~/app directory created and set as default working directory"
+ 
 
 echo "✅ Dotfiles setup complete!"
 echo "🔄 Please restart your shell or run 'source ~/.bashrc' (or equivalent) to apply changes."

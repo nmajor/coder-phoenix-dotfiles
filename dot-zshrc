@@ -137,8 +137,3 @@ alias gc='git commit'
 alias gp='git push'
 alias gl='git log --oneline'
 alias gd='git diff'
-
-# Load local customizations if they exist
-if [ -f ~/.zshrc.local ]; then
-    source ~/.zshrc.local
-fi
