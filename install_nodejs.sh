@@ -42,6 +42,15 @@ else
   sudo apt-get install -y nodejs
 fi
 
+# Configure npm to use a user-writable global prefix to avoid EACCES
+npm_prefix="$HOME/.local/npm"
+mkdir -p "$npm_prefix"
+npm config set prefix "$npm_prefix"
+if ! grep -q "/.local/npm/bin" ~/.bashrc 2>/dev/null; then
+  echo "export PATH=\$HOME/.local/npm/bin:\$PATH" >> ~/.bashrc
+fi
+export PATH="$npm_prefix/bin:$PATH"
+
 # Enable Corepack (bundled with Node >=16.10)
 corepack enable || true
 
