@@ -78,11 +78,27 @@ if [ -f "$HOME/.zshrc" ]; then
   fi
 fi
 
+# Ensure login shells pick up npm global bin (Ubuntu canonical: ~/.profile for sh-derived, ~/.zprofile for zsh)
+if ! grep -q "/.local/npm/bin" "$HOME/.profile" 2>/dev/null; then
+  echo "export PATH=\$HOME/.local/npm/bin:\$PATH" >> "$HOME/.profile"
+fi
+if ! grep -q "/.local/npm/bin" "$HOME/.zprofile" 2>/dev/null; then
+  echo "export PATH=\$HOME/.local/npm/bin:\$PATH" >> "$HOME/.zprofile"
+fi
+
 # Enable Corepack (bundled with Node >=16.10). On NodeSource builds this may
 # attempt to write shims into /usr/bin and fail with EACCES; fall back to user-global tools.
 if ! corepack enable 2>/dev/null; then
   echo "⚠️ Corepack enable failed (likely permissions). Installing yarn & pnpm globally in user prefix."
-  npm install -g yarn pnpm
+  npm install -g yarn pnpm || true
+fi
+
+# Ensure yarn and pnpm are available even if Corepack succeeded
+if ! command -v yarn >/dev/null 2>&1; then
+  npm install -g yarn || true
+fi
+if ! command -v pnpm >/dev/null 2>&1; then
+  npm install -g pnpm || true
 fi
 
 echo "✅ Installed Node.js: $(node -v) (npm $(npm -v))"
