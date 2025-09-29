@@ -91,3 +91,13 @@ echo "Installing global npm packages..."
 
 npm install -g @anthropic-ai/claude-code
 
+# Preinstall Playwright browsers and OS deps for @playwright/mcp
+echo "📥 Preinstalling Playwright browsers and dependencies..."
+if command -v npx >/dev/null 2>&1; then
+  # OS packages via Playwright helper (uses apt under the hood)
+  wait_for_apt
+  sudo -E npx -y playwright@latest install-deps || true
+  # Browsers (Chromium/Firefox/WebKit)
+  npx -y playwright@latest install chromium firefox webkit || npx -y playwright@latest install || true
+fi
+

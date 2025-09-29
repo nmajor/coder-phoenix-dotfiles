@@ -29,13 +29,16 @@ echo "📦 Installing minimal dependencies..."
 wait_for_apt
 sudo apt-get update
 wait_for_apt
-sudo apt-get install -y curl unzip zsh git inotify-tools
+sudo apt-get install -y curl unzip zsh git inotify-tools jq
 
 # Install Erlang/OTP and Elixir (delegated, sourced so PATH persists)
 source "$SCRIPT_DIR/install_elixir_erlang_otp.sh"
 
 # Install Node.js (delegated, sourced so PATH/npm prefix persists)
 source "$SCRIPT_DIR/install_nodejs.sh"
+
+# Install Python (for MCPs like Zen)
+source "$SCRIPT_DIR/install_python.sh"
 
 # Create app directory and set as default
 echo "📁 Creating app directory..."
@@ -67,6 +70,9 @@ curl -sS https://starship.rs/install.sh | sh -s -- --yes
 
 # Change default shell to zsh
 sudo chsh -s $(which zsh) coder
+
+# Install MCP config (delegated)
+source "$SCRIPT_DIR/install_mcp.sh"
 
 echo "🎉 Environment ready!"
 echo "📊 Database: postgres://postgres:postgres@localhost:5432"
