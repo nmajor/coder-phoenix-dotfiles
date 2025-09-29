@@ -40,6 +40,12 @@ source "$SCRIPT_DIR/install_nodejs.sh"
 # Install Python (for MCPs like Zen)
 source "$SCRIPT_DIR/install_python.sh"
 
+# CLI tooling (gh) and SSH
+if [ -f "$SCRIPT_DIR/install_cli.sh" ]; then
+  source "$SCRIPT_DIR/install_cli.sh"
+fi
+source "$SCRIPT_DIR/install_git_ssh.sh"
+
 # Install CLIs (e.g., GitHub CLI)
   source "$SCRIPT_DIR/install_cli.sh"
 
