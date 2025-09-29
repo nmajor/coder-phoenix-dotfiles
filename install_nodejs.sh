@@ -71,6 +71,13 @@ if ! grep -q "/.local/npm/bin" ~/.bashrc 2>/dev/null; then
 fi
 export PATH="$npm_prefix/bin:$PATH"
 
+# Ensure zsh sessions can see npm global binaries
+if [ -f "$HOME/.zshrc" ]; then
+  if ! grep -q "/.local/npm/bin" "$HOME/.zshrc" 2>/dev/null; then
+    echo "export PATH=\$HOME/.local/npm/bin:\$PATH" >> "$HOME/.zshrc"
+  fi
+fi
+
 # Enable Corepack (bundled with Node >=16.10)
 corepack enable || true
 
