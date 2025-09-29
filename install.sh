@@ -31,11 +31,11 @@ sudo apt-get update
 wait_for_apt
 sudo apt-get install -y curl unzip zsh git inotify-tools
 
-# Install Erlang/OTP and Elixir (delegated)
-bash "$SCRIPT_DIR/install_elixir_erlang_otp.sh"
+# Install Erlang/OTP and Elixir (delegated, sourced so PATH persists)
+source "$SCRIPT_DIR/install_elixir_erlang_otp.sh"
 
-# Install Node.js (delegated)
-bash "$SCRIPT_DIR/install_nodejs.sh"
+# Install Node.js (delegated, sourced so PATH/npm prefix persists)
+source "$SCRIPT_DIR/install_nodejs.sh"
 
 # Create app directory and set as default
 echo "📁 Creating app directory..."
@@ -49,6 +49,16 @@ if [ -d "$HOME/.oh-my-zsh" ]; then
     echo "Oh My Zsh is already installed, skipping installation."
 else
     sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+fi
+
+# Restore our zsh config to avoid template overwrite
+if [ -f "$SCRIPT_DIR/dot-zshrc" ]; then
+    cp -f "$SCRIPT_DIR/dot-zshrc" "$HOME/.zshrc"
+fi
+
+# Ensure npm global bin is on zsh PATH (survives template overwrite)
+if ! grep -q "/.local/npm/bin" "$HOME/.zshrc" 2>/dev/null; then
+    echo "export PATH=\$HOME/.local/npm/bin:\$PATH" >> "$HOME/.zshrc"
 fi
 
 # Install Starship prompt

@@ -78,8 +78,12 @@ if [ -f "$HOME/.zshrc" ]; then
   fi
 fi
 
-# Enable Corepack (bundled with Node >=16.10)
-corepack enable || true
+# Enable Corepack (bundled with Node >=16.10). On NodeSource builds this may
+# attempt to write shims into /usr/bin and fail with EACCES; fall back to user-global tools.
+if ! corepack enable 2>/dev/null; then
+  echo "⚠️ Corepack enable failed (likely permissions). Installing yarn & pnpm globally in user prefix."
+  npm install -g yarn pnpm
+fi
 
 echo "✅ Installed Node.js: $(node -v) (npm $(npm -v))"
 
