@@ -11,9 +11,24 @@ export NODE_VERSION="22.10.0"
 # Make versions available to subscripts and resolve script dir
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Wait for apt/dpkg locks (e.g., other installers during workspace boot)
+wait_for_apt() {
+  echo "⏳ Waiting for apt/dpkg to be available..."
+  while \
+    sudo fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1 || \
+    sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1 || \
+    sudo fuser /var/cache/apt/archives/lock >/dev/null 2>&1 || \
+    pgrep -x apt >/dev/null || pgrep -x apt-get >/dev/null || pgrep -x dpkg >/dev/null; do
+    sleep 3
+  done
+  sudo dpkg --configure -a || true
+}
+
 # Install minimal dependencies (no compilation needed!)
 echo "📦 Installing minimal dependencies..."
+wait_for_apt
 sudo apt-get update
+wait_for_apt
 sudo apt-get install -y curl unzip zsh git inotify-tools
 
 # Install Erlang/OTP and Elixir (delegated)
