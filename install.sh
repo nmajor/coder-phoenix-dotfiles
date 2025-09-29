@@ -40,6 +40,9 @@ source "$SCRIPT_DIR/install_nodejs.sh"
 # Install Python (for MCPs like Zen)
 source "$SCRIPT_DIR/install_python.sh"
 
+# Install CLIs (e.g., GitHub CLI)
+  source "$SCRIPT_DIR/install_cli.sh"
+
 # Create app directory and set as default
 echo "📁 Creating app directory..."
 mkdir -p /home/coder/app
