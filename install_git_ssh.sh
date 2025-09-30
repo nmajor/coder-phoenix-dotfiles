@@ -17,13 +17,13 @@ key_path="$HOME/.ssh/id_ed25519"
 pub_path="$HOME/.ssh/id_ed25519.pub"
 
 echo "🔐 Importing SSH private key from environment..."
-# First try: interpret \n escapes and strip CR
-printf "%b" "$GIT_SSH_PRIVATE_KEY" | tr -d '\r' > "$key_path"
+# First try: interpret \n escapes and strip CR, ensure trailing newline
+printf "%s\n" "$GIT_SSH_PRIVATE_KEY" | tr -d '\r' > "$key_path"
 chmod 600 "$key_path"
 
 # Validate format; if not OpenSSH PEM, try base64 decode fallback
 if ! head -1 "$key_path" | grep -q '^-----BEGIN OPENSSH PRIVATE KEY-----$'; then
-  printf "%s" "$GIT_SSH_PRIVATE_KEY" | tr -d '\r' | base64 -d > "$key_path" 2>/dev/null || true
+  { printf "%s" "$GIT_SSH_PRIVATE_KEY" | tr -d '\r' | base64 -d; echo; } > "$key_path" 2>/dev/null || true
   chmod 600 "$key_path"
 fi
 
