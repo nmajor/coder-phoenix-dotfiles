@@ -38,6 +38,21 @@ else
 fi
 mv "$TMP_OUT" "$CLAUDE_JSON"
 
+# Claude Code settings: ensure includeCoAuthoredBy=false in settings.json
+# Prefer settings.json under ~/.claude; fallback to ~/.claude.json for older layouts
+CLAUDE_DIR="$HOME/.claude"
+mkdir -p "$CLAUDE_DIR"
+SETTINGS_JSON="$CLAUDE_DIR/settings.json"
+if [ -f "$SETTINGS_JSON" ] && [ -s "$SETTINGS_JSON" ]; then
+  jq '.includeCoAuthoredBy = false' "$SETTINGS_JSON" > "$TMP_OUT"
+  mv "$TMP_OUT" "$SETTINGS_JSON"
+else
+  # Initialize settings.json with includeCoAuthoredBy=false (and preserve nothing else)
+  printf '{\n  "includeCoAuthoredBy": false\n}\n' > "$SETTINGS_JSON"
+fi
+
+echo "🛡️  Claude Code: includeCoAuthoredBy=false set in $SETTINGS_JSON"
+
 echo "✅ MCP config installed to:"
 echo "  • Cursor:        $HOME/.cursor/mcp.json"
 echo "  • Claude Desktop: $HOME/.config/Claude/claude_desktop_config.json"

@@ -29,7 +29,7 @@ echo "📦 Installing minimal dependencies..."
 wait_for_apt
 sudo apt-get update
 wait_for_apt
-sudo apt-get install -y curl unzip zsh git inotify-tools jq
+sudo apt-get install -y curl unzip zsh git inotify-tools jq tmux
 
 # Install Erlang/OTP and Elixir (delegated, sourced so PATH persists)
 source "$SCRIPT_DIR/install_elixir_erlang_otp.sh"
