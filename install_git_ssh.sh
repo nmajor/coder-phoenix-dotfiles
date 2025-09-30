@@ -83,6 +83,9 @@ else
   echo "----------------------"
 fi
 
+git config --global user.email $GITHUB_EMAIL
+git config --global user.name $GITHUB_NAME
+
 echo "🔧 Git SSH setup complete."
 
 
