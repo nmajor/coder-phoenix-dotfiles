@@ -119,8 +119,12 @@ if [ "$PWD" = "$HOME" ]; then
     cd ~/app
 fi
 
-# Initialize Starship prompt
-eval "$(starship init zsh)"
+# Initialize Starship prompt (interactive TTYs only)
+if command -v starship >/dev/null 2>&1; then
+    if [[ $- == *i* ]] && [ -t 1 ]; then
+        eval "$(starship init zsh)"
+    fi
+fi
 
 # Example of including additional aliases for common commands
 alias ll='ls -alF'
