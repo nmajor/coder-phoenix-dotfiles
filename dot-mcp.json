@@ -19,6 +19,12 @@
         "OPENAI_API_KEY": "${OPENAI_API_KEY}"
       }
     },
+    "context7": {
+      "command": "npx @upstash/context7-mcp@latest",
+      "env": {
+        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+      }
+    },
     "crawl": {
       "type": "http",
       "url": "${CRAWL4AI_MCP_URL}/mcp"
