@@ -13,14 +13,11 @@
         "OPENAI_API_KEY": "${OPENAI_API_KEY}"
       }
     },
-    "serena": {
-      "command": "$HOME/.local/bin/uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/oraios/serena",
-        "serena",
-        "start-mcp-server"
-      ]
+    "claude-context": {
+      "command": "npx @zilliz/claude-context-mcp@latest",
+      "env": {
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}"
+      }
     },
     "crawl": {
       "type": "http",
