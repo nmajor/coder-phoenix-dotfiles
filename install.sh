@@ -9,6 +9,11 @@ REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 [ -f "$REPO_ROOT/dot-starship.toml" ] && ln -sf "$REPO_ROOT/dot-starship.toml" "$HOME/.starship.toml"
 [ -f "$REPO_ROOT/dot-mcp.json" ] && ln -sf "$REPO_ROOT/dot-mcp.json" "$HOME/.mcp.json"
 
+# Sync Claude config from .mcp.json
+if [ -x "$REPO_ROOT/update-claude-config.sh" ]; then
+  "$REPO_ROOT/update-claude-config.sh"
+fi
+
 echo "[dotfiles] applied"
 
 # asdf env (optional for the script itself)

@@ -1,6 +1,7 @@
 {
   "mcpServers": {
     "zen": {
+      "type": "stdio",
       "command": "sh",
       "args": [
         "-c",
@@ -11,17 +12,17 @@
         "OPENAI_API_KEY": "${OPENAI_API_KEY}"
       }
     },
-    "c4ai-sse": {
-      "type": "sse",
-      "url": "${CRAWL4AI_MCP_URL}/mcp/sse"
+    "crawl": {
+      "type": "http",
+      "url": "${CRAWL4AI_MCP_URL}/mcp"
     },
     "dataforseo": {
       "type": "http",
       "url": "${DATAFORSEO_MCP_URL}/mcp"
     },
     "playwright": {
-      "transport": "http",
-      "url": "http://localhost:11666/"
+      "type": "http",
+      "url": "${PLAYWRIGHT_MCP_URL}/mcp"
     }
   }
 }
