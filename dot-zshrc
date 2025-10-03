@@ -10,16 +10,10 @@ setopt AUTO_CD
 setopt CORRECT
 
 # Prompt
-# Starship prompt
-export STARSHIP_CONFIG="$HOME/.config/starship.toml"
-eval "$(starship init zsh)"
-
-# asdf (v0.16+)
-export ASDF_DIR="$HOME/.asdf"
-autoload -Uz compinit
-compinit
-if command -v asdf >/dev/null 2>&1; then
-  source <(asdf completion zsh)
+# Starship prompt (guard if missing)
+if command -v starship >/dev/null 2>&1; then
+  export STARSHIP_CONFIG="$HOME/.config/starship.toml"
+  eval "$(starship init zsh)"
 fi
 
 # Set default directory to app folder (only if starting from home)
@@ -27,6 +21,11 @@ if [ "$PWD" = "$HOME" ]; then
     mkdir -p ~/app
     cd ~/app
 fi
+
+# asdf env for non-login zsh
+[[ -f /etc/profile.d/asdf.sh ]] && . /etc/profile.d/asdf.sh
+# enable zsh completions (picks up _asdf from /usr/share/zsh/site-functions)
+autoload -Uz compinit && compinit -i
 
 # For UV Python
 export PATH="$HOME/.local/bin:$PATH"

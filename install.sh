@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Minimal Coder dotfiles installer (runs if present & executable)
+REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
+
+# Symlink configs from this repo to $HOME
+[ -f "$REPO_ROOT/dot-zshrc" ] && ln -sf "$REPO_ROOT/dot-zshrc" "$HOME/.zshrc"
+[ -f "$REPO_ROOT/dot-starship.toml" ] && ln -sf "$REPO_ROOT/dot-starship.toml" "$HOME/.starship.toml"
+[ -f "$REPO_ROOT/dot-mcp.json" ] && ln -sf "$REPO_ROOT/dot-mcp.json" "$HOME/.mcp.json"
+
+echo "[dotfiles] applied"
+
+# asdf env (optional for the script itself)
+. /etc/profile.d/asdf.sh
+
+# Zsh completion system-wide (no home writes)
+sudo mkdir -p /usr/share/zsh/site-functions
+asdf completion zsh | sudo tee /usr/share/zsh/site-functions/_asdf >/dev/null
+
+# Installing a different nodejs version than the default image one
+# . /etc/profile.d/asdf.sh
+# asdf list all nodejs | tail -n 20
+# asdf install nodejs 22.11.0
+# export ASDF_NODEJS_VERSION=22.11.0
+# rehash 2>/dev/null || hash -r
+# node -v
+# asdf which node
+
+echo "[dotfiles] Installing packages"
+
+# Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Install npm packages
+npm install -g bun
+npm install -g @anthropic-ai/claude-code
+
+echo "[dotfiles] Done installing packages"
