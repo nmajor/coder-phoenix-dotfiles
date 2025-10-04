@@ -17,7 +17,7 @@ if [ -f "$REPO_ROOT/update-claude-config.sh" ]; then
 fi
 
 # Add SSH keys for git access
-"$REPO_ROOT/install_git_ssh.sh"
+"$REPO_ROOT/install-git-ssh.sh"
 
 echo "[dotfiles] applied"
 
