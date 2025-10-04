@@ -16,6 +16,9 @@ if [ -f "$REPO_ROOT/update-claude-config.sh" ]; then
   "$HOME/update-claude-config.sh"
 fi
 
+# Add SSH keys for git access
+"$REPO_ROOT/install_git_ssh.sh"
+
 echo "[dotfiles] applied"
 
 # asdf env (optional for the script itself)
