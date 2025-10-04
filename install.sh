@@ -7,11 +7,13 @@ REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 # Symlink configs from this repo to $HOME
 [ -f "$REPO_ROOT/dot-zshrc" ] && ln -sf "$REPO_ROOT/dot-zshrc" "$HOME/.zshrc"
 [ -f "$REPO_ROOT/dot-starship.toml" ] && ln -sf "$REPO_ROOT/dot-starship.toml" "$HOME/.starship.toml"
-[ -f "$REPO_ROOT/dot-mcp.json" ] && ln -sf "$REPO_ROOT/dot-mcp.json" "$HOME/.mcp.json"
+[ -f "$REPO_ROOT/dot-default-claude.json" ] && ln -sf "$REPO_ROOT/dot-default-claude.json" "$HOME/.default-claude.json"
 
-# Sync Claude config from .mcp.json
-if [ -x "$REPO_ROOT/update-claude-config.sh" ]; then
-  "$REPO_ROOT/update-claude-config.sh"
+# Copy updater into $HOME and run it so it can assume HOME context
+if [ -f "$REPO_ROOT/update-claude-config.sh" ]; then
+  cp "$REPO_ROOT/update-claude-config.sh" "$HOME/update-claude-config.sh"
+  chmod +x "$HOME/update-claude-config.sh"
+  "$HOME/update-claude-config.sh"
 fi
 
 echo "[dotfiles] applied"
