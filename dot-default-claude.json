@@ -15,16 +15,6 @@
         "OPENAI_API_KEY": "${OPENAI_API_KEY}"
       }
     },
-    "claude-context": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "@zilliz/claude-context-mcp@latest"
-      ],
-      "env": {
-        "OPENAI_API_KEY": "${OPENAI_API_KEY}"
-      }
-    },
     "context7": {
       "type": "stdio",
       "command": "npx",
@@ -46,6 +36,18 @@
     "playwright": {
       "type": "http",
       "url": "${PLAYWRIGHT_MCP_URL}/mcp"
+    },
+    "serena": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/oraios/serena",
+        "serena",
+        "start-mcp-server",
+        "--context",
+        "ide-assistant"
+      ]
     }
   }
 }
