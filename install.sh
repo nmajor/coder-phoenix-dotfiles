@@ -39,6 +39,13 @@ asdf completion zsh | sudo tee /usr/share/zsh/site-functions/_asdf >/dev/null
 
 echo "[dotfiles] Installing packages"
 
+# Install hex
+mix local.hex --force
+mix local.rebar --force
+
+mix archive.install hex igniter_new --force
+mix archive.install hex phx_new 1.8.1 --force
+
 # Install uv
 curl -LsSf https://astral.sh/uv/install.sh | sh
 

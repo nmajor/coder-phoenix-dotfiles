@@ -48,6 +48,10 @@
         "--context",
         "ide-assistant"
       ]
+    },
+    "tidewave": {
+      "type": "http",
+      "url": "http://localhost:4000/tidewave/mcp"
     }
   }
 }
