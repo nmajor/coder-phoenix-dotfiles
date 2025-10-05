@@ -49,6 +49,8 @@ mix archive.install hex phx_new 1.8.1 --force
 # Install uv
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
+uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+
 # Install npm packages
 npm install -g bun
 npm install -g @anthropic-ai/claude-code
