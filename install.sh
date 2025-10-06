@@ -4,6 +4,15 @@ set -euo pipefail
 # Minimal Coder dotfiles installer (runs if present & executable)
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 
+# Install zplug if missing (non-interactive)
+if [[ ! -f $HOME/.zplug/init.zsh ]]; then
+    curl -sL --proto '=https' --tlsv1.2 https://raw.githubusercontent.com/zplug/zplug/master/install | zsh
+fi
+
+# Install plugins non-interactively (zplug handles it quietly)
+zplug install || true  # Ignores if already installed
+zplug update || true   # Pull latest once
+
 # Symlink configs from this repo to $HOME
 [ -f "$REPO_ROOT/dot-zshrc" ] && ln -sf "$REPO_ROOT/dot-zshrc" "$HOME/.zshrc"
 [ -f "$REPO_ROOT/dot-starship.toml" ] && ln -sf "$REPO_ROOT/dot-starship.toml" "$HOME/.starship.toml"

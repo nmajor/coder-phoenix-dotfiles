@@ -3,11 +3,46 @@ export ZDOTDIR="$HOME"
 export HISTFILE="$HOME/.zsh_history"
 export SAVEHIST=5000
 export HISTSIZE=5000
+
+# Core options early (before plugins, so they apply)
 setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_FIND_NO_DUPS
 setopt SHARE_HISTORY
 setopt AUTO_CD
 setopt CORRECT
+setopt CORRECT_ALL  # Standard: Suggests corrections for entire command line (e.g., multi-word)
+setopt EXTENDED_GLOB  # Standard: Enables advanced glob patterns (e.g., git rm (*~cache|*.log))
+
+# zplug setup (assume installed via dotfiles script; no interactive prompt here)
+if [[ -f ~/.zplug/init.zsh ]]; then
+    source ~/.zplug/init.zsh
+
+    # Plugins (load completions last)
+    zplug "zsh-users/zsh-autosuggestions"
+    zplug "zsh-users/zsh-syntax-highlighting"
+    zplug "zsh-users/zsh-history-substring-search"
+    zplug "zsh-users/zsh-completions", use:"zsh-completions.plugin.zsh"
+
+    # Check and load (non-interactive: install only if explicitly run elsewhere)
+    if ! zplug check --verbose; then
+        # Silent fail in zshrc—handle install in dotfiles script
+        zplug load --verbose || true
+    else
+        zplug load
+    fi
+else
+    # Fallback if zplug missing (rare, post-curl)
+    echo "zplug not found—run install script" >&2
+fi
+
+# History substring search bindings (essential for prefix/substring up/down)
+if zplug check "zsh-users/zsh-history-substring-search"; then
+    bindkey '^[[A' history-substring-search-up      # Up: substring search backward
+    bindkey '^[[B' history-substring-search-down    # Down: forward
+    # Optional: Highlight matches (low overhead)
+    HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND='bg=magenta,fg=white,bold'
+    HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND='bg=red'
+fi
 
 # Prompt
 # Starship prompt (guard if missing)
@@ -24,8 +59,12 @@ fi
 
 # asdf env for non-login zsh
 [[ -f /etc/profile.d/asdf.sh ]] && . /etc/profile.d/asdf.sh
-# enable zsh completions (picks up _asdf from /usr/share/zsh/site-functions)
+
+# Enable zsh completions (after zplug, to include plugin comps)
 autoload -Uz compinit && compinit -i
+
+# Case-insensitive, approx fuzzy matching (standard for devs—speeds tab-complete for misspells)
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
 
 # For UV Python
 export PATH="$HOME/.local/bin:$PATH"
