@@ -16,6 +16,11 @@ if [ -f "$REPO_ROOT/update-claude-config.sh" ]; then
   "$HOME/update-claude-config.sh"
 fi
 
+# Authenticate GitHub CLI (if token present) before SSH setup
+if [ -f "$REPO_ROOT/setup-gh-cli.sh" ]; then
+  "$REPO_ROOT/setup-gh-cli.sh"
+fi
+
 # Add SSH keys for git access
 "$REPO_ROOT/install-git-ssh.sh"
 
