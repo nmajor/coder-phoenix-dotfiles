@@ -59,8 +59,8 @@ fi
 
 # Set default directory to app folder (only if starting from home)
 if [ "$PWD" = "$HOME" ]; then
-    mkdir -p ~/app
-    cd ~/app
+    mkdir -p $HOME/app
+    cd $HOME/app
 fi
 
 # asdf env for non-login zsh
