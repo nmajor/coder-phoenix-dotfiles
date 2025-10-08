@@ -10,9 +10,11 @@ REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 [ -f "$REPO_ROOT/dot-default-claude.json" ] && ln -sf "$REPO_ROOT/dot-default-claude.json" "$HOME/.default-claude.json"
 [ -f "$REPO_ROOT/dot-tmux.conf" ] && ln -sf "$REPO_ROOT/dot-tmux.conf" "$HOME/.tmux.conf"
 
-# Bootstrap tmux (copies config before starting tmux)
+# Copy start-tmux into $HOME and run it so it can assume HOME context
 if [ -f "$REPO_ROOT/start-tmux.sh" ]; then
-  "$REPO_ROOT/start-tmux.sh"
+  cp "$REPO_ROOT/start-tmux.sh" "$HOME/start-tmux.sh"
+  chmod +x "$HOME/start-tmux.sh"
+  "$HOME/start-tmux.sh"
 fi
 
 # Copy updater into $HOME and run it so it can assume HOME context
@@ -24,11 +26,17 @@ fi
 
 # Authenticate GitHub CLI (if token present) before SSH setup
 if [ -f "$REPO_ROOT/setup-gh-cli.sh" ]; then
-  "$REPO_ROOT/setup-gh-cli.sh"
+  cp "$REPO_ROOT/setup-gh-cli.sh" "$HOME/setup-gh-cli.sh"
+  chmod +x "$HOME/setup-gh-cli.sh"
+  "$HOME/setup-gh-cli.sh"
 fi
 
-# Add SSH keys for git access
-"$REPO_ROOT/install-git-ssh.sh"
+# Add SSH keys for git access (copy to HOME, make executable, then run)
+if [ -f "$REPO_ROOT/install-git-ssh.sh" ]; then
+  cp "$REPO_ROOT/install-git-ssh.sh" "$HOME/install-git-ssh.sh"
+  chmod +x "$HOME/install-git-ssh.sh"
+  "$HOME/install-git-ssh.sh"
+fi
 
 echo "[dotfiles] applied"
 
