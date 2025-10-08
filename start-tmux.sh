@@ -12,7 +12,7 @@ if ! require_cmd tmux; then
   fi
 fi
 
-# 2) Load config into running server (if any), otherwise start+source quietly
+# Load config into running server (if any), otherwise start+source quietly
 TMUX_DST="${HOME}/.tmux.conf"
 if require_cmd tmux; then
   tmux start-server || true
@@ -21,11 +21,18 @@ if require_cmd tmux; then
   fi
 fi
 
-# 3) Quick verification (no server required for these, but nicer with one)
+# Start the server and create a single new dev session if it doesn't exist
+if command -v tmux >/dev/null 2>&1; then
+  tmux start-server >/dev/null 2>&1 || true
+  tmux has-session -t dev 2>/dev/null || tmux new-session -d -s dev -n shell "/usr/bin/zsh -l"
+fi
+
+# Quick verification (no server required for these, but nicer with one)
 if require_cmd tmux; then
   tmux start-server || true
   echo "tmux default-shell:   $(tmux show -g default-shell 2>/dev/null || echo '(no server)')"
   echo "tmux default-command: $(tmux show -g default-command 2>/dev/null || echo '(no server)')"
 fi
+
 
 echo "tmux bootstrap complete."

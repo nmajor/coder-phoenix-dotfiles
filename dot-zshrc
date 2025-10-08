@@ -66,6 +66,14 @@ fi
 # asdf env for non-login zsh
 [[ -f /etc/profile.d/asdf.sh ]] && . /etc/profile.d/asdf.sh
 
+# tmux stuff
+ta() {
+  command -v tmux >/dev/null 2>&1 || { echo "tmux not found"; return 1; }
+  tmux start-server >/dev/null 2>&1 || true
+  tmux has-session -t dev 2>/dev/null || tmux new-session -d -s dev -n shell "/usr/bin/zsh -l"
+  tmux attach -t dev
+}
+
 # For UV Python
 export PATH="$HOME/.local/bin:$PATH"
 
