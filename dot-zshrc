@@ -67,10 +67,30 @@ fi
 [[ -f /etc/profile.d/asdf.sh ]] && . /etc/profile.d/asdf.sh
 
 # tmux stuff
-ta() {
+tattach() {
   command -v tmux >/dev/null 2>&1 || { echo "tmux not found"; return 1; }
   tmux start-server >/dev/null 2>&1 || true
   tmux has-session -t dev 2>/dev/null || tmux new-session -d -s dev -n shell "/usr/bin/zsh -l"
+  tmux attach -t dev
+}
+
+trestart() {
+  if ! command -v tmux >/dev/null 2>&1; then
+    echo "tmux not found"; return 1
+  fi
+
+  # If inside tmux and in session 'dev', swap seamlessly server-side.
+  if [[ -n "$TMUX" ]] && [[ "$(tmux display-message -p '#S' 2>/dev/null)" == "dev" ]]; then
+    tmux new-session -d -s dev.new "/usr/bin/zsh -l" \; \
+         switch-client -t dev.new \; \
+         kill-session -t dev \; \
+         rename-session -t dev.new dev
+    return
+  fi
+
+  # Outside tmux (or in another session): kill, recreate, and attach.
+  tmux kill-session -t dev 2>/dev/null || true
+  tmux new-session -d -s dev "/usr/bin/zsh -l"
   tmux attach -t dev
 }
 
