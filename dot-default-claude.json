@@ -1,5 +1,4 @@
 {
-  "enableAllProjectMcpServers": true,
   "mcpServers": {
     "zen": {
       "type": "stdio",
@@ -36,18 +35,6 @@
     "playwright": {
       "type": "http",
       "url": "${PLAYWRIGHT_MCP_URL}/mcp"
-    },
-    "serena": {
-      "type": "stdio",
-      "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/oraios/serena",
-        "serena",
-        "start-mcp-server",
-        "--context",
-        "ide-assistant"
-      ]
     },
     "tidewave": {
       "type": "http",
