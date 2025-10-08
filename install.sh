@@ -8,6 +8,12 @@ REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 [ -f "$REPO_ROOT/dot-zshrc" ] && ln -sf "$REPO_ROOT/dot-zshrc" "$HOME/.zshrc"
 [ -f "$REPO_ROOT/dot-starship.toml" ] && ln -sf "$REPO_ROOT/dot-starship.toml" "$HOME/.starship.toml"
 [ -f "$REPO_ROOT/dot-default-claude.json" ] && ln -sf "$REPO_ROOT/dot-default-claude.json" "$HOME/.default-claude.json"
+[ -f "$REPO_ROOT/dot-tmux.conf" ] && ln -sf "$REPO_ROOT/dot-tmux.conf" "$HOME/.tmux.conf"
+
+# Bootstrap tmux (copies config before starting tmux)
+if [ -f "$REPO_ROOT/start-tmux.sh" ]; then
+  "$REPO_ROOT/start-tmux.sh"
+fi
 
 # Copy updater into $HOME and run it so it can assume HOME context
 if [ -f "$REPO_ROOT/update-claude-config.sh" ]; then
