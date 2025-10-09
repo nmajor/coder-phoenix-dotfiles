@@ -57,10 +57,10 @@ if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
 
-# Set default directory to app folder (only if starting from home)
-if [ "$PWD" = "$HOME" ]; then
-    mkdir -p $HOME/app
-    cd $HOME/app
+# Set default directory to app folder (if not already there)
+if [ "$PWD" != "$HOME/app" ]; then
+    mkdir -p "$HOME/app"
+    cd "$HOME/app"
 fi
 
 # asdf env for non-login zsh
