@@ -66,7 +66,7 @@ mix archive.install hex igniter_new --force
 mix archive.install hex phx_new 1.8.1 --force
 
 # Install uv
-curl -LsSf https://astral.sh/uv/install.sh | env UV_NO_MODIFY_PATH=1 | sh
+curl -LsSf https://astral.sh/uv/install.sh | env UV_NO_MODIFY_PATH=1 sh
 
 # Install npm packages
 npm install -g bun
