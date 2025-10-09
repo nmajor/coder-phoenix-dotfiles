@@ -32,11 +32,7 @@ if [ -f "$REPO_ROOT/setup-gh-cli.sh" ]; then
 fi
 
 # Add SSH keys for git access (copy to HOME, make executable, then run)
-if [ -f "$REPO_ROOT/install-git-ssh.sh" ]; then
-  cp "$REPO_ROOT/install-git-ssh.sh" "$HOME/install-git-ssh.sh"
-  chmod +x "$HOME/install-git-ssh.sh"
-  "$HOME/install-git-ssh.sh"
-fi
+"$REPO_ROOT/install-git-ssh.sh"
 
 echo "[dotfiles] applied"
 
