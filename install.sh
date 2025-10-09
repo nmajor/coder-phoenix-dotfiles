@@ -4,11 +4,11 @@ set -euo pipefail
 # Minimal Coder dotfiles installer (runs if present & executable)
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 
-# Copy configs from this repo to $HOME
-[ -f "$REPO_ROOT/dot-zshrc" ] && cp -f "$REPO_ROOT/dot-zshrc" "$HOME/.zshrc"
-[ -f "$REPO_ROOT/dot-starship.toml" ] && cp -f "$REPO_ROOT/dot-starship.toml" "$HOME/.starship.toml"
-[ -f "$REPO_ROOT/dot-default-claude.json" ] && cp -f "$REPO_ROOT/dot-default-claude.json" "$HOME/.default-claude.json"
-[ -f "$REPO_ROOT/dot-tmux.conf" ] && cp -f "$REPO_ROOT/dot-tmux.conf" "$HOME/.tmux.conf"
+# Symlink configs from this repo to $HOME
+[ -f "$REPO_ROOT/dot-zshrc" ] && ln -sf "$REPO_ROOT/dot-zshrc" "$HOME/.zshrc"
+[ -f "$REPO_ROOT/dot-starship.toml" ] && ln -sf "$REPO_ROOT/dot-starship.toml" "$HOME/.starship.toml"
+[ -f "$REPO_ROOT/dot-default-claude.json" ] && ln -sf "$REPO_ROOT/dot-default-claude.json" "$HOME/.default-claude.json"
+[ -f "$REPO_ROOT/dot-tmux.conf" ] && ln -sf "$REPO_ROOT/dot-tmux.conf" "$HOME/.tmux.conf"
 
 # Copy start-tmux into $HOME and run it so it can assume HOME context
 if [ -f "$REPO_ROOT/start-tmux.sh" ]; then
@@ -66,7 +66,7 @@ mix archive.install hex igniter_new --force
 mix archive.install hex phx_new 1.8.1 --force
 
 # Install uv
-curl -LsSf https://astral.sh/uv/install.sh | sh
+curl -LsSf https://astral.sh/uv/install.sh | env UV_NO_MODIFY_PATH=1 | sh
 
 # Install npm packages
 npm install -g bun
