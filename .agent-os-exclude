@@ -1,0 +1,22 @@
+# User customization files - preserve across updates
+config.yml
+profiles/custom/
+
+# Version control
+.git/
+.gitignore
+
+# Runtime artifacts
+*.log
+*.pid
+tmp/
+.cache/
+
+# Backup files
+*.backup
+*.old
+*~
+
+# OS-specific files
+.DS_Store
+Thumbs.db

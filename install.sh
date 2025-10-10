@@ -40,6 +40,41 @@ fi
 
 echo "[dotfiles] applied"
 
+# ============================================================
+# Sync Agent OS directory (preserve user customizations)
+# ============================================================
+echo "[dotfiles] Syncing Agent OS..."
+
+if [ -d "$REPO_ROOT/agent-os" ]; then
+  # Create target directory if it doesn't exist
+  mkdir -p "$HOME/agent-os"
+
+  # Create backup directory for rollback capability
+  BACKUP_DIR="$HOME/.agent-os-backups/$(date +%Y%m%d_%H%M%S)"
+  if [ -d "$HOME/agent-os" ]; then
+    mkdir -p "$(dirname "$BACKUP_DIR")"
+    cp -r "$HOME/agent-os" "$BACKUP_DIR" 2>/dev/null || true
+
+    # Keep only last 3 backups
+    ls -dt "$HOME/.agent-os-backups"/* 2>/dev/null | tail -n +4 | xargs rm -rf 2>/dev/null || true
+  fi
+
+  # Sync with selective exclusions using exclude file
+  rsync -av --delete \
+    --exclude-from="$REPO_ROOT/.agent-os-exclude" \
+    "$REPO_ROOT/agent-os/" "$HOME/agent-os/"
+
+  # Copy default config only if it doesn't exist (preserve user settings)
+  if [ ! -f "$HOME/agent-os/config.yml" ] && [ -f "$REPO_ROOT/agent-os/config.yml.default" ]; then
+    cp "$REPO_ROOT/agent-os/config.yml.default" "$HOME/agent-os/config.yml"
+    echo "[dotfiles] Created default Agent OS config"
+  fi
+
+  echo "[dotfiles] Agent OS synced successfully"
+else
+  echo "[dotfiles] Agent OS directory not found in repo, skipping..."
+fi
+
 # asdf env (optional for the script itself)
 . /etc/profile.d/asdf.sh
 
