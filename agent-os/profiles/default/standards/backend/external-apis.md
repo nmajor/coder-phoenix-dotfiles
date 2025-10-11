@@ -3,31 +3,27 @@
 **Canonical guide for integrating with external APIs** in Elixir projects using the "Mocks and Explicit Contracts" pattern established by José Valim and the Elixir community.
 
 **Opinionated Stack:**
+
 - **Mox** - The only acceptable mocking library (behaviour-based, concurrent-safe)
 - **Req** - The only acceptable HTTP client (batteries-included, built on Finch)
 
-<conditional-block context-check="mocks-explicit-contracts-philosophy">
-IF this Philosophy section already read in current context:
-  SKIP: Re-reading this section
-  NOTE: "Using Mocks and Explicit Contracts philosophy already in context"
-ELSE:
-  READ: The following philosophy
-
-## Philosophy: Mocks and Explicit Contracts
-
 ### The Origin Story
+
+##### Philosophy: Mocks and Explicit Contracts
 
 In October 2015, José Valim (creator of Elixir) published ["Mocks and Explicit Contracts"](https://dashbit.co/blog/mocks-and-explicit-contracts), fundamentally changing how the Elixir community approaches testing external dependencies. Two years later, Dashbit released Mox, a library that embodies these principles.
 
 ### Core Principle: Mock as a Noun, Never a Verb
 
 **Traditional mocking treats "mock" as a verb** - you _mock_ an existing module, changing its behavior globally or for specific tests. This creates:
+
 - Shared mutable state across tests
 - Inability to run tests concurrently (`async: true` forbidden)
 - Tight coupling to implementation details
 - Hidden dependencies that break silently
 
 **The Elixir approach treats "mock" as a noun** - a Mock is a concrete module that implements a behavior. This enables:
+
 - No shared state (each test gets its own expectations)
 - Concurrent test execution with `async: true`
 - Compiler-verified contracts between mock and real implementation
@@ -36,14 +32,15 @@ In October 2015, José Valim (creator of Elixir) published ["Mocks and Explicit 
 ### The Contract-First Design
 
 **Quote from José Valim:**
+
 > "Mocks/stubs do not remove the need to define an explicit interface between your components... Defining contracts allows you to see the complexity in your dependencies and make it as explicit as you can."
 
 Every external dependency MUST be hidden behind an explicit behavior (contract). This forces you to:
+
 1. **Think about boundaries** - What does your application actually need from this API?
 2. **Make complexity visible** - Each `@callback` represents a dependency
 3. **Enable testability** - Swap implementations via configuration
 4. **Support concurrent tests** - No global mocking, no shared state
-
 
 ### Core Philosophy: Mocks and Explicit Contracts
 

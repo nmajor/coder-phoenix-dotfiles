@@ -1,6 +1,6 @@
 ## Coding style best practices
 
-- **Consistent Naming Conventions**: Establish and follow naming conventions for variables, functions, classes, and files across the codebase
+- **Consistent Naming Conventions**: Establish and follow naming conventions for variables, functions, modules, and files across the codebase
 - **Automated Formatting**: Maintain consistent code style (indenting, line breaks, etc.)
 - **Meaningful Names**: Choose descriptive names that reveal intent; avoid abbreviations and single-letter variables except in narrow contexts
 - **Small, Focused Functions**: Keep functions small and focused on a single task for better readability and testability

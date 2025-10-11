@@ -1,184 +1,241 @@
-## Backend test writing standards (Ash Framework)
+## Backend Ash Test Standards
 
-### Core Testing Philosophy
+### The Golden Rules
 
-- **Write Minimal Tests During Development**: Do NOT write tests for every change or intermediate step - focus on completing feature implementation first
-- **Test Only Core User Flows**: Write tests exclusively for critical paths and primary user workflows
-- **Defer Edge Case Testing**: Do NOT test edge cases, error states, or validation logic unless business-critical
-- **Test Behavior Not Implementation**: Focus on what code does, not how it does it, to reduce brittleness
-- **Clear Test Names**: Use descriptive names that explain what's being tested and expected outcome
-- **Fast Execution**: Keep tests fast (milliseconds) so developers run them frequently
+1. **NEVER use Ecto/Repo directly** - Always use Ash APIs (domain functions, `Ash.Query`, `Ash.read!`)
+2. **ARRANGE: Use domain functions with `authorize?: false`** - Respects validations, skips auth
+3. **ACT: Use domain functions with `actor:`** - Tests real authorization
+4. **ASSERT: Use `Ash.load!`, `Ash.get!`, or `Ash.Query.filter`** - Never bypass Ash layer
+5. **Use `Ash.Seed.seed!` ONLY for non-accepted attributes** - Like setting `status: :failed` directly
 
-### The Golden Rule: Always Use Ash API Layer
+### Test Structure (Arrange-Act-Assert)
 
-- **NEVER Bypass to Data Layer**: NEVER use `Ecto.Query` or `Repo` directly in application or test code
-- **ALWAYS Use Ash APIs**: Use `Ash.Query`, `Ash.create!`, `Ash.read!`, `Ash.get!`, `Ash.load!` for all database operations
-- **Testing Validates YOUR Logic**: Tests verify your business logic, not the framework
-- **Struct Access Only**: Use `record.field` not `record[:field]` for attribute access
-
-### Test Data Creation (ARRANGE Phase)
-
-- **Domain Functions with authorize false**: Use `Domain.create!(params, authorize?: false)` to respect validations while bypassing authorization
-- **Ash.Seed for Fixtures**: Use `Ash.Seed.seed!(Resource, %{...})` to bypass everything and set any attribute (including non-accepted fields)
-- **Ash.Seed.upsert for Idempotency**: Use `Ash.Seed.upsert!(struct, identity: :field_name)` for fixtures that should be created once
-- **Use Domain Functions When Possible**: Prefer domain functions unless you need to set attributes not in action's accept list
-- **Bypass Authorization in Setup**: Test helpers should use `authorize?: false` to simplify test data creation
-
-### Testing Actions (ACT Phase)
-
-- **Always Use Domain Functions**: Call `Domain.action!(params, actor: user)` like `Accounts.register_user!` not direct `Ash.create!`
-- **Test Real Authorization**: In ACT phase, pass real `actor:` to verify authorization policies work correctly
-- **Use Raising Versions**: Prefer `create!`, `update!` over tuple returns for cleaner test code
-- **Pass Tenant When Required**: Include `tenant: org.id` for multi-tenant resources
-- **Avoid Direct Ash Calls**: Prefer domain code interface functions over `Ash.create/update/destroy` directly
-
-### Querying Data (ASSERT Phase)
-
-- **Domain Read Functions**: Use `Domain.get_resource(id, actor: user)` for reading specific records
-- **Ash.Query for Filtering**: Use `Resource |> Ash.Query.filter(field == value) |> Ash.read!()` for filtered queries
-- **Ash.get! for Single Records**: Use `Ash.get!(Resource, id, tenant: org.id)` when record must exist
-- **Ash.load! for Relationships**: Use `Ash.load!(record, [:relationship1, :relationship2])` to load associations
-- **Never Ecto.Query**: NEVER use `from(r in Resource) |> Repo.all()` - always go through Ash
-
-### Testing Authorization and Policies
-
-- **Domain can Functions**: Use `Domain.can_action_resource?(user, params)` when domain provides helpers
-- **Ash.can? for Explicit Checks**: Use `Ash.can?({Resource, :action}, user, input: %{...})` to test policies
-- **Test with Real Actor**: Always pass `actor:` in ACT phase to verify authorization enforcement
-- **Cross-Tenant Returns NotFound**: Cross-tenant access should return `NotFound` not `Forbidden`
-
-### Property Testing with Ash.Generator
-
-- **Use changeset_generator**: Prefer `Ash.Generator.changeset_generator(Resource, :action)` for property tests
-- **Tests Real Validations**: Changeset generator tests against real domain actions and validations
-- **Use seed_generator Sparingly**: Only use `Ash.Generator.seed_generator` when you need to bypass validations
-- **action_input for Input Generation**: Use `Ash.Generator.action_input(Resource, :action)` to generate valid inputs
-
-### Test Helper Patterns
-
-- **Ash.Seed for Complex Fixtures**: Use `Ash.Seed.seed!` in helpers when you need to set status/state fields not in accept lists
-- **Domain Functions for Standard Creation**: Use domain functions with `authorize?: false` for typical test data
-- **Unique Identifiers**: Use `System.unique_integer([:positive])` or UUIDs for unique test data
-- **Default Attributes Pattern**: Merge user-provided attrs with defaults in helper functions
-- **Fixture Modules**: Create dedicated `MyApp.Fixtures` module for reusable test data creation
-
-### Concurrent Testing (async: true)
-
-- **Always Start with async true**: Every test file MUST start with `use ExUnit.Case, async: true`
-- **Database Isolation**: Ash with Ecto SQL Sandbox provides transaction isolation for concurrent tests
-- **No Shared Mutable State**: Avoid global state, singletons, or shared processes in tests
-- **Fast Test Suites**: Concurrent execution means test suite runs as fast as slowest individual test file
-
-### What NOT to Do
-
-- **Never Ecto.Query or Repo**: Don't use `from(r in "table") |> Repo.all()` or `Repo.insert!` - use Ash APIs
-- **Never Map Access**: Don't use `record[:field]` - use struct access `record.field`
-- **Never Bypass Validations in ACT**: Don't use `authorize?: false` when testing the action itself
-- **Never Test Framework**: Don't test that Ash's features work - test YOUR business logic
-- **Never Hardcode IDs**: Use fixtures and generated IDs, not hardcoded UUIDs in tests
-
-### Testing Pattern Summary
-
-**ARRANGE** - Create test data:
 ```elixir
-# Use domain functions with authorize?: false
-user = Accounts.register_user!(
-  %{email: "test@example.com", password: "password123"},
-  authorize?: false
-)
+test "user can generate report", %{conn: conn} do
+  # ARRANGE - Create test data with authorize?: false
+  user = Accounts.register_user!(
+    %{email: "test@example.com", password: "pass123"},
+    authorize?: false
+  )
+  org = Organizations.create_org!(%{name: "Acme"}, authorize?: false)
 
-# Or Ash.Seed for attributes not in accept list
-report = Ash.Seed.seed!(Report, %{
-  organization_id: org.id,
-  status: :failed  # Not in accept list
+  # ACT - Test the actual action with real actor
+  {:ok, report} = Reports.generate_report(
+    %{name: "Q1 Report", report_type: :daily},
+    actor: user,
+    tenant: org.id
+  )
+
+  # ASSERT - Query through Ash layer
+  assert report.status == :completed
+
+  report = Ash.load!(report, [:sections])
+  assert length(report.sections) > 0
+end
+```
+
+### When to Use What
+
+**Domain Functions (Preferred):**
+```elixir
+# ✅ ARRANGE phase - bypass auth, keep validations
+user = Accounts.create_user!(%{email: "test@example.com"}, authorize?: false)
+
+# ✅ ACT phase - test with real authorization
+{:ok, post} = Blog.create_post(%{title: "Test"}, actor: user)
+
+# ✅ ASSERT phase - read through domain
+post = Blog.get_post!(post.id, actor: user)
+```
+
+**Ash.Seed (For Non-Accepted Attributes Only):**
+```elixir
+# ✅ Setting state machine status not in accept list
+order = Ash.Seed.seed!(Order, %{
+  user_id: user.id,
+  status: :processing  # Can't pass this to create action
 })
+
+# ✅ Setting system timestamps directly
+report = Ash.Seed.seed!(Report, %{
+  name: "Test",
+  completed_at: DateTime.utc_now()  # Not in accept list
+})
+
+# ❌ Don't use Ash.Seed when domain function works
+user = Ash.Seed.seed!(User, %{email: "test@example.com"})  # Use domain function!
 ```
 
-**ACT** - Execute the action being tested:
+**Ash.Query (For Complex Filtering):**
 ```elixir
-# Use domain function with real actor
-{:ok, report} = Reports.generate_report(
-  %{name: "Test", report_type: :daily},
-  actor: user,
-  tenant: org.id
-)
+# ✅ Multi-field filtering in assertions
+pending_orders = Order
+  |> Ash.Query.filter(status == :pending and total > 100)
+  |> Ash.read!(actor: user, tenant: org.id)
+
+assert length(pending_orders) == 3
 ```
 
-**ASSERT** - Verify results:
+**Ash.load! (For Relationships):**
 ```elixir
-# Use Ash.Query, Ash.read!, Ash.get!, Ash.load!
-assert report.status == :completed
+# ✅ Load relationships for assertions
+order = Ash.load!(order, [:line_items, :customer])
+assert length(order.line_items) == 2
 
-report = Ash.load!(report, [:sections])
-assert length(report.sections) > 0
-
-pending_reports = Report
-  |> Ash.Query.filter(status == :pending)
-  |> Ash.read!(tenant: org.id)
-
-assert length(pending_reports) == 0
+# ✅ Nested loading
+order = Ash.load!(order, line_items: [:product])
 ```
 
-### Integration with External APIs
+### Testing Authorization
 
-- **Follow External API Standards**: See `backend/external-apis.md` for Mox-based testing patterns
-- **Mock External Dependencies**: Use Mox for external API clients in backend tests
-- **No Real HTTP Calls**: Never make actual external API calls in test suite (use mocks)
-- **One Integration Test**: Create ONE real integration test per API endpoint (tagged, skipped by default)
+```elixir
+test "user cannot delete other user's post" do
+  owner = create_user()
+  other_user = create_user()
+  post = Blog.create_post!(%{title: "Test"}, actor: owner, authorize?: false)
+
+  # Test authorization failure
+  assert {:error, %Ash.Error.Forbidden{}} =
+    Blog.delete_post(post.id, actor: other_user)
+end
+
+test "checks permission before showing UI" do
+  user = create_user()
+  post = create_post()
+
+  # Use Ash.can? for UI permission checks
+  assert Ash.can?({post, :update}, user)
+  refute Ash.can?({post, :delete}, user)
+end
+```
+
+### Critical Gotchas
+
+**1. Never use Ecto/Repo:**
+```elixir
+# ❌ Wrong - bypasses Ash completely
+users = Repo.all(User)
+
+# ✅ Correct - through Ash
+users = Ash.read!(User)
+```
+
+**2. Don't use `authorize?: false` in ACT phase:**
+```elixir
+# ❌ Wrong - not testing authorization!
+{:ok, post} = Blog.create_post(%{title: "Test"}, authorize?: false)
+
+# ✅ Correct - tests real authorization
+{:ok, post} = Blog.create_post(%{title: "Test"}, actor: user)
+```
+
+**3. Use `Ash.Seed` only when necessary:**
+```elixir
+# ❌ Wrong - domain function would work
+user = Ash.Seed.seed!(User, %{email: "test@example.com"})
+
+# ✅ Correct - Ash.Seed only for non-accepted fields
+order = Ash.Seed.seed!(Order, %{status: :completed})  # status not in accept
+```
 
 ### Common Patterns
 
-**Testing Nested Relationships:**
-```elixir
-# Create parent with nested child
-business = Ash.Seed.seed!(Business, %{
-  name: "Test Business",
-  location: %{
-    city: "Portland",
-    google_business_profile: %{place_id: "test123"}
-  }
-})
-
-# Load and assert on nested data
-business = Ash.load!(business, location: [:google_business_profile])
-assert business.location.city == "Portland"
-```
-
 **Testing State Machines:**
 ```elixir
-# Use Ash.Seed to create in specific state
-order = Ash.Seed.seed!(Order, %{status: :processing})
+# Create in specific state with Ash.Seed
+order = Ash.Seed.seed!(Order, %{status: :processing, user_id: user.id})
 
-# Test transition
-{:ok, updated} = order
-  |> Ash.Changeset.for_update(:complete)
-  |> Ash.update(actor: user)
-
-assert updated.status == :completed
+# Test transition action
+{:ok, completed} = Shop.complete_order(order.id, actor: user)
+assert completed.status == :completed
 ```
 
-**Testing Background Jobs (AshOban):**
+**Testing Nested Relationships:**
 ```elixir
-# Set Oban to manual mode in test.exs
-config :my_app, Oban, testing: :manual
+# Create with domain function
+{:ok, order} = Shop.create_order(
+  %{
+    total: 100,
+    line_items: [
+      %{product_id: p1.id, quantity: 2},
+      %{product_id: p2.id, quantity: 1}
+    ]
+  },
+  actor: user,
+  authorize?: false
+)
 
-# In test
-user = create_user()
-
-# Job should be enqueued but not executed
-assert_enqueued worker: MyApp.Workers.SendWelcome
-
-# Manually drain queue to execute
-Oban.drain_queue(:default)
-
-# Assert side effects happened
-assert_email_sent(to: user.email)
+# Load and assert
+order = Ash.load!(order, [:line_items])
+assert length(order.line_items) == 2
 ```
 
-### Best Practices
+**Testing Multi-Tenancy:**
+```elixir
+org1 = create_org()
+org2 = create_org()
 
-- **Test Domain Logic**: Focus on testing YOUR business rules, not Ash features
-- **Use Test Helpers**: Extract common setup into `test/support/fixtures.ex` or `test/support/helpers.ex`
-- **Keep Tests Simple**: Each test should verify one behavior or outcome
-- **Descriptive Assertions**: Use clear assertion messages to explain what failed
-- **Avoid Test Interdependence**: Each test should be independent and runnable in isolation
+# Create in org1
+report = Reports.create!(%{name: "Test"}, tenant: org1.id, authorize?: false)
+
+# Can't access from org2 (returns NotFound, not Forbidden)
+assert {:error, %Ash.Error.Query.NotFound{}} =
+  Reports.get(report.id, tenant: org2.id)
+```
+
+### Authentication in Tests
+
+**Use helper to create authenticated test users:**
+
+```elixir
+# test/support/fixtures.ex
+def create_user(attrs \\ %{}) do
+  Accounts.register_user!(
+    Map.merge(%{
+      email: "user#{System.unique_integer()}@example.com",
+      password: "password123"
+    }, attrs),
+    authorize?: false
+  )
+end
+```
+
+**ARRANGE: Create users with `authorize?: false`. ACT: Pass real actor.**
+
+```elixir
+test "user can create post" do
+  # ARRANGE - bypass auth for test data
+  user = create_user()
+
+  # ACT - test with real authorization
+  {:ok, post} = Blog.create_post(%{title: "Test"}, actor: user)
+
+  assert post.user_id == user.id
+end
+```
+
+### Config for Testing
+
+```elixir
+# config/test.exs
+config :ash, :disable_async?, true  # Required for SQL Sandbox
+config :ash, :missed_notifications, :ignore  # Silence PubSub warnings
+config :my_app, Oban, testing: :manual  # Manual job execution
+config :bcrypt_elixir, log_rounds: 1  # Fast password hashing in tests
+```
+
+### What NOT to Test
+
+- Framework features (trust Ash works)
+- Library features (trust that things like Oban, AshOban, Hammer, etc... work)
+- That validations run (unless testing custom validation)
+- Ecto schema definitions
+- Default Ash behavior
+
+### Use `async: true`
+
+```elixir
+use ExUnit.Case, async: true  # Always start with this!
+```
+
+Ash with SQL Sandbox provides transaction isolation - tests run concurrently and safely.
