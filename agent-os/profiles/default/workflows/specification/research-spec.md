@@ -20,12 +20,14 @@ Read the raw idea from `[spec-path]/planning/initialization.md` to understand wh
 Before generating questions, understand the broader product context:
 
 1. **Read Product Mission**: Load `agent-os/product/mission.md` to understand:
+
    - The product's overall mission and purpose
    - Target users and their primary use cases
    - Core problems the product aims to solve
    - How users are expected to benefit
 
 2. **Read Product Roadmap**: Load `agent-os/product/roadmap.md` to understand:
+
    - Features and capabilities already completed
    - The current state of the product
    - Where this new feature fits in the broader roadmap
@@ -37,6 +39,7 @@ Before generating questions, understand the broader product context:
    - Libraries and tools available
 
 This context will help you:
+
 - Ask more relevant and contextual questions
 - Identify existing features that might be reused or referenced
 - Ensure the feature aligns with product goals
@@ -49,6 +52,7 @@ Based on the initial idea, generate 6-9 targeted, NUMBERED questions that explor
 **CRITICAL: Always include the visual asset request AND reusability question at the END of your questions.**
 
 **Question generation guidelines:**
+
 - Start each question with a number
 - Propose sensible assumptions based on best practices
 - Frame questions as "I'm assuming X, is that correct?"
@@ -57,6 +61,7 @@ Based on the initial idea, generate 6-9 targeted, NUMBERED questions that explor
 - Always end with an open question about exclusions
 
 **Required output format:**
+
 ```
 Based on your idea for [spec name], I have some clarifying questions:
 
@@ -73,6 +78,14 @@ Are there existing features in your codebase with similar patterns we should ref
 - Existing models or controllers with similar functionality
 
 Please provide file/folder paths or names of these features if they exist.
+
+**Existing Tests That May Need Updating:**
+Are there existing tests that could break when this new functionality is introduced? For example:
+- If adding a new required field, it could be missing from test data or fixtures
+- Removing a field, existing tests might include it in data or fixtures
+- Integration tests might expect the old way of doing things
+
+Please provide file/folder paths or name of these tests if they exist, don't try to be comprehensive, don't worry about false positives or false negatives
 
 **Visual Assets Request:**
 Do you have any design mockups, wireframes, or screenshots that could help guide the development?
@@ -107,6 +120,7 @@ ls -la [spec-path]/planning/visuals/ 2>/dev/null | grep -E '\.(png|jpg|jpeg|gif|
 ```
 
 3. IF visual files are found (bash command returns filenames):
+
    - Use Read tool to analyze EACH visual file found
    - Note key design elements, patterns, and user flows
    - Document observations for each file
@@ -121,21 +135,25 @@ ls -la [spec-path]/planning/visuals/ 2>/dev/null | grep -E '\.(png|jpg|jpeg|gif|
 Determine if follow-up questions are needed based on:
 
 **Visual-triggered follow-ups:**
+
 - If visuals were found but user didn't mention them: "I found [filename(s)] in the visuals folder. Let me analyze these for the specification."
 - If filenames contain "lofi", "lo-fi", "wireframe", "sketch", or "rough": "I notice you've provided [filename(s)] which appear to be wireframes/low-fidelity mockups. Should we treat these as layout and structure guides rather than exact design specifications, using our application's existing styling instead?"
 - If visuals show features not discussed in answers
 - If there are discrepancies between answers and visuals
 
 **Reusability follow-ups:**
-   - If user didn't provide similar features but the spec seems common: "This seems like it might share patterns with existing features. Could you point me to any similar forms/pages/logic in your app?"
+
+- If user didn't provide similar features but the spec seems common: "This seems like it might share patterns with existing features. Could you point me to any similar forms/pages/logic in your app?"
 - If provided paths seem incomplete you can ask something like: "You mentioned [feature]. Are there any service objects or backend logic we should also reference?"
 
 **User's Answers-triggered follow-ups:**
+
 - Vague requirements need clarification
 - Missing technical details
 - Unclear scope boundaries
 
 **If follow-ups needed, OUTPUT to orchestrator:**
+
 ```
 Based on your answers [and the visual files I found], I have a few follow-up questions:
 
@@ -155,6 +173,7 @@ After all questions are answered, write ALL gathered information to `[spec-path]
 # Spec Requirements: [Spec Name]
 
 ## Initial Description
+
 [User's original spec description from initialization.md]
 
 ## Requirements Discussion
@@ -170,9 +189,11 @@ After all questions are answered, write ALL gathered information to `[spec-path]
 [Continue for all questions]
 
 ### Existing Code to Reference
+
 [Based on user's response about similar features]
 
 **Similar Features Identified:**
+
 - Feature: [Name] - Path: `[path provided by user]`
 - Components to potentially reuse: [user's description]
 - Backend logic to reference: [user's description]
@@ -181,6 +202,7 @@ After all questions are answered, write ALL gathered information to `[spec-path]
 No similar existing features identified for reference.
 
 ### Follow-up Questions
+
 [If any were asked]
 
 **Follow-up 1:** [Question]
@@ -189,11 +211,14 @@ No similar existing features identified for reference.
 ## Visual Assets
 
 ### Files Provided:
+
 [Based on actual bash check, not user statement]
+
 - `filename.png`: [Description of what it shows from your analysis]
 - `filename2.jpg`: [Key elements observed from your analysis]
 
 ### Visual Insights:
+
 - [Design patterns identified]
 - [User flow implications]
 - [UI components shown]
@@ -205,29 +230,36 @@ No visual assets provided.
 ## Requirements Summary
 
 ### Functional Requirements
+
 - [Core functionality based on answers]
 - [User actions enabled]
 - [Data to be managed]
 
 ### Non-Functional Requirements
+
 - [Performance needs if mentioned]
 - [Security requirements if mentioned]
 - [Accessibility needs if mentioned]
 
 ### Reusability Opportunities
+
 - [Components that might exist already based on user's input]
 - [Backend patterns to investigate]
 - [Similar features to model after]
 
 ### Scope Boundaries
+
 **In Scope:**
+
 - [What will be built]
 
 **Out of Scope:**
+
 - [What won't be built]
 - [Future enhancements mentioned]
 
 ### Technical Considerations
+
 - [Integration points mentioned]
 - [Existing system constraints]
 - [Technology preferences stated]

@@ -21,10 +21,16 @@ if require_cmd tmux; then
   fi
 fi
 
-# Start the server and create a single new dev session if it doesn't exist
+# 3) Start the server and create sessions if they don't exist
 if command -v tmux >/dev/null 2>&1; then
   tmux start-server >/dev/null 2>&1 || true
+  
+  # Your existing 'dev' session
   tmux has-session -t dev 2>/dev/null || tmux new-session -d -s dev -n shell "/usr/bin/zsh -l"
+  
+  # New 'dev-server' session: Detached, in project dir, runs the script
+  PROJECT_DIR="$HOME/app"  # Define once; use env var for reusability if needed
+  tmux has-session -t dev-server 2>/dev/null || tmux new-session -d -s dev-server -n server -c "$PROJECT_DIR" "./dev-server.sh run"
 fi
 
 # Quick verification (no server required for these, but nicer with one)
@@ -32,7 +38,7 @@ if require_cmd tmux; then
   tmux start-server || true
   echo "tmux default-shell:   $(tmux show -g default-shell 2>/dev/null || echo '(no server)')"
   echo "tmux default-command: $(tmux show -g default-command 2>/dev/null || echo '(no server)')"
+  echo "Sessions: $(tmux list-sessions -F '#{session_name}' 2>/dev/null || echo 'None')"
 fi
 
-
-echo "tmux bootstrap complete."
+echo "tmux bootstrap complete. 'dev-server' session ready (attach with 'tmux attach -t dev-server')."

@@ -37,6 +37,7 @@ end
 ### When to Use What
 
 **Domain Functions (Preferred):**
+
 ```elixir
 # ✅ ARRANGE phase - bypass auth, keep validations
 user = Accounts.create_user!(%{email: "test@example.com"}, authorize?: false)
@@ -49,6 +50,7 @@ post = Blog.get_post!(post.id, actor: user)
 ```
 
 **Ash.Seed (For Non-Accepted Attributes Only):**
+
 ```elixir
 # ✅ Setting state machine status not in accept list
 order = Ash.Seed.seed!(Order, %{
@@ -67,6 +69,7 @@ user = Ash.Seed.seed!(User, %{email: "test@example.com"})  # Use domain function
 ```
 
 **Ash.Query (For Complex Filtering):**
+
 ```elixir
 # ✅ Multi-field filtering in assertions
 pending_orders = Order
@@ -77,6 +80,7 @@ assert length(pending_orders) == 3
 ```
 
 **Ash.load! (For Relationships):**
+
 ```elixir
 # ✅ Load relationships for assertions
 order = Ash.load!(order, [:line_items, :customer])
@@ -112,6 +116,7 @@ end
 ### Critical Gotchas
 
 **1. Never use Ecto/Repo:**
+
 ```elixir
 # ❌ Wrong - bypasses Ash completely
 users = Repo.all(User)
@@ -121,6 +126,7 @@ users = Ash.read!(User)
 ```
 
 **2. Don't use `authorize?: false` in ACT phase:**
+
 ```elixir
 # ❌ Wrong - not testing authorization!
 {:ok, post} = Blog.create_post(%{title: "Test"}, authorize?: false)
@@ -130,6 +136,7 @@ users = Ash.read!(User)
 ```
 
 **3. Use `Ash.Seed` only when necessary:**
+
 ```elixir
 # ❌ Wrong - domain function would work
 user = Ash.Seed.seed!(User, %{email: "test@example.com"})
@@ -141,6 +148,7 @@ order = Ash.Seed.seed!(Order, %{status: :completed})  # status not in accept
 ### Common Patterns
 
 **Testing State Machines:**
+
 ```elixir
 # Create in specific state with Ash.Seed
 order = Ash.Seed.seed!(Order, %{status: :processing, user_id: user.id})
@@ -151,6 +159,7 @@ assert completed.status == :completed
 ```
 
 **Testing Nested Relationships:**
+
 ```elixir
 # Create with domain function
 {:ok, order} = Shop.create_order(
@@ -171,6 +180,7 @@ assert length(order.line_items) == 2
 ```
 
 **Testing Multi-Tenancy:**
+
 ```elixir
 org1 = create_org()
 org2 = create_org()
@@ -239,3 +249,5 @@ use ExUnit.Case, async: true  # Always start with this!
 ```
 
 Ash with SQL Sandbox provides transaction isolation - tests run concurrently and safely.
+
+If you have a test file that uses both async: true and import Mox, you should always add Mox.set_mox_private() in the setup block.

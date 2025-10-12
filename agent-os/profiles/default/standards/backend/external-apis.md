@@ -26,6 +26,7 @@ In October 2015, José Valim (creator of Elixir) published ["Mocks and Explicit 
 
 - No shared state (each test gets its own expectations)
 - Concurrent test execution with `async: true`
+- If you have a test file that uses both async: true and import Mox, you should always add Mox.set_mox_private() in the setup block.
 - Compiler-verified contracts between mock and real implementation
 - Explicit boundaries between components
 
