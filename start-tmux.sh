@@ -30,7 +30,12 @@ if command -v tmux >/dev/null 2>&1; then
   
   # New 'dev-server' session: Detached, in project dir, runs the script
   PROJECT_DIR="$HOME/app"  # Define once; use env var for reusability if needed
-  tmux has-session -t dev-server 2>/dev/null || tmux new-session -d -s dev-server -n server -c "$PROJECT_DIR" "./dev-server.sh run"
+  SCRIPT_PATH="$PROJECT_DIR/dev-server.sh"
+  if [ -f "$SCRIPT_PATH" ]; then
+    tmux has-session -t dev-server 2>/dev/null || tmux new-session -d -s dev-server -n server -c "$PROJECT_DIR" "./dev-server.sh run"
+  else
+    echo "WARN: $SCRIPT_PATH not found—skipping dev-server session creation. (Create/extract the script first.)"
+  fi
 fi
 
 # Quick verification (no server required for these, but nicer with one)
