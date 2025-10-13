@@ -117,8 +117,8 @@ tsr() {
 
   # Outside tmux (or in another session): kill, recreate, and attach.
   tmux kill-session -t dev-server 2>/dev/null || true
-  tmux new-session -d -s dev-server "/usr/bin/zsh -l"
-  tmux attach -t dev-server
+  PROJECT_DIR=$HOME/app
+  tmux new-session -d -s dev-server -n server -c "$PROJECT_DIR" "./dev-server.sh run"
 }
 
 # For UV Python
