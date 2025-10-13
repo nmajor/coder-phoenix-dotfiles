@@ -67,14 +67,14 @@ fi
 [[ -f /etc/profile.d/asdf.sh ]] && . /etc/profile.d/asdf.sh
 
 # tmux stuff
-tattach() {
+ta() {
   command -v tmux >/dev/null 2>&1 || { echo "tmux not found"; return 1; }
   tmux start-server >/dev/null 2>&1 || true
   tmux has-session -t dev 2>/dev/null || tmux new-session -d -s dev -n shell "/usr/bin/zsh -l"
   tmux attach -t dev
 }
 
-trestart() {
+tr() {
   if ! command -v tmux >/dev/null 2>&1; then
     echo "tmux not found"; return 1
   fi
@@ -92,6 +92,33 @@ trestart() {
   tmux kill-session -t dev 2>/dev/null || true
   tmux new-session -d -s dev "/usr/bin/zsh -l"
   tmux attach -t dev
+}
+
+tsa() {
+  command -v tmux >/dev/null 2>&1 || { echo "tmux not found"; return 1; }
+  tmux start-server >/dev/null 2>&1 || true
+  tmux has-session -t dev-server 2>/dev/null || tmux new-session -d -s dev-server -n shell "/usr/bin/zsh -l"
+  tmux attach -t dev-server
+}
+
+tr() {
+  if ! command -v tmux >/dev/null 2>&1; then
+    echo "tmux not found"; return 1
+  fi
+
+  # If inside tmux and in session 'dev-server', swap seamlessly server-side.
+  if [[ -n "$TMUX" ]] && [[ "$(tmux display-message -p '#S' 2>/dev/null)" == "dev-server" ]]; then
+    tmux new-session -d -s dev-server.new "/usr/bin/zsh -l" \; \
+         switch-client -t dev-server.new \; \
+         kill-session -t dev-server \; \
+         rename-session -t dev-server.new dev-server
+    return
+  fi
+
+  # Outside tmux (or in another session): kill, recreate, and attach.
+  tmux kill-session -t dev-server 2>/dev/null || true
+  tmux new-session -d -s dev-server "/usr/bin/zsh -l"
+  tmux attach -t dev-server
 }
 
 # For UV Python
