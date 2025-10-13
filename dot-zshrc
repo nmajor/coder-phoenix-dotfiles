@@ -101,7 +101,7 @@ tsa() {
   tmux attach -t dev-server
 }
 
-tr() {
+tsr() {
   if ! command -v tmux >/dev/null 2>&1; then
     echo "tmux not found"; return 1
   fi
