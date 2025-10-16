@@ -145,6 +145,15 @@ Every external dependency MUST be hidden behind an explicit behavior (contract).
 - **One Integration Test**: Create ONE integration test per API endpoint that uses real HTTP (skip by default)
 - **No Real Requests in CI**: Never make actual API calls in continuous integration - too slow, costs money, non-deterministic
 
+### Real-World Fixture Testing Strategy
+
+- **Capture Real Responses**: Record actual API responses at least once using ReqCassette (for Req) to capture real edge cases (NaN, Infinity, malformed data)
+- **Store as Test Fixtures**: Save recorded responses in `test/fixtures/api_name/` as JSON cassettes committed to version control
+- **Test Against Fixtures**: Create dedicated fixture tests that process all recorded responses to verify edge case handling
+- **Sanitize Sensitive Data**: Use ReqCassette's filtering or manual sanitization to remove API keys, tokens, PII before committing fixtures
+- **ReqCassette Setup**: Add `plug: {ReqCassette.Plug, cassette_dir: "test/fixtures/api_name"}` to Req client for recording
+- **Still Use Mox Primary**: Real fixtures supplement (not replace) Mox tests - use fixtures to discover edge cases, then add specific Mox tests for them
+
 ### Anti-Patterns to Avoid
 
 - **Never Mock HTTP Library Directly**: Don't mock Req directly - always mock your behavior
