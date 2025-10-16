@@ -83,6 +83,7 @@ Every external dependency MUST be hidden behind an explicit behavior (contract).
 - **Normalize Errors**: Return `{:error, {:client_error, status, body}}`, `{:error, {:server_error, status, body}}`, `{:error, {:network_error, reason}}`
 - **Retrieve API Keys at Runtime**: Use `Application.fetch_env!/2` in private function, not compile time
 - **Built-in Retry**: Use Req's `:retry` option for transient failures (network issues, 5xx errors)
+- **Use Type Guards**: Enforce parameter types with `when` clauses (e.g., `when is_binary(keyword) and is_float(radius)`)
 
 ### Public Facade (Layer 3)
 
@@ -127,6 +128,7 @@ Every external dependency MUST be hidden behind an explicit behavior (contract).
 - **Test Response Parsing**: Verify HTTP client correctly parses API responses into expected format
 - **Test Error Normalization**: Ensure 4xx, 5xx, and network errors are normalized correctly
 - **Still Concurrent**: Req.Test tests can run with `async: true`
+- **Test Type Guards**: Verify parameter type enforcement (e.g., float vs integer) raises FunctionClauseError for invalid types
 
 ### Optional Testing Strategy: Bypass for Integration
 
