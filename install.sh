@@ -103,6 +103,9 @@ mix archive.install hex phx_new 1.8.1 --force
 # Install uv
 curl -LsSf https://astral.sh/uv/install.sh | env UV_NO_MODIFY_PATH=1 sh
 
+# Instal CodeRabbit
+curl -fsSL https://cli.coderabbit.ai/install.sh | sh
+
 # Install npm packages
 npm install -g bun
 npm install -g @anthropic-ai/claude-code
