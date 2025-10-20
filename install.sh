@@ -110,6 +110,7 @@ curl -LsSf https://astral.sh/uv/install.sh | env UV_NO_MODIFY_PATH=1 sh
 
 # Instal CodeRabbit
 curl -fsSL https://cli.coderabbit.ai/install.sh | sh
+sed -i '/^# Added by CodeRabbit CLI installer/,$d' "$HOME/.zshrc" # Clean up additions to the zshrc
 
 # Install npm packages
 npm install -g bun
