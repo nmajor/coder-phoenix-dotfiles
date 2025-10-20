@@ -121,7 +121,7 @@ tsr() {
   tmux new-session -d -s dev-server -n server -c "$PROJECT_DIR" "./dev-server.sh run"
 }
 
-# For UV Python
+# For UV Python AND Coderabbit
 export PATH="$HOME/.local/bin:$PATH"
 
 # Common aliases
