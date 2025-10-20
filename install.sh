@@ -93,9 +93,99 @@ asdf completion zsh | sudo tee /usr/share/zsh/site-functions/_asdf >/dev/null
 
 echo "[dotfiles] Installing packages"
 
-# Install hex
-mix local.hex --force
-mix local.rebar --force
+# ============================================================
+# Self-correcting Hex installation with OTP compatibility
+# ============================================================
+install_hex_robust() {
+  local max_attempts=3
+  local attempt=1
+
+  while [ $attempt -le $max_attempts ]; do
+    echo "[dotfiles] Installing Hex (attempt $attempt/$max_attempts)..."
+
+    # Clear stale installations on retry
+    if [ $attempt -gt 1 ]; then
+      echo "[dotfiles] Clearing stale Hex installations..."
+      # Clear from HOME
+      rm -rf "${HOME}/.mix/archives/hex-"* 2>/dev/null || true
+      # Clear from asdf-managed Elixir location
+      if command -v asdf >/dev/null 2>&1; then
+        local elixir_path="$(asdf where elixir 2>/dev/null || true)"
+        if [ -n "$elixir_path" ]; then
+          rm -rf "${elixir_path}/.mix/archives/hex-"* 2>/dev/null || true
+        fi
+      fi
+      sleep 2
+    fi
+
+    # Install Hex
+    if mix local.hex --force; then
+      # Verify Hex works with current OTP version
+      if mix hex.info >/dev/null 2>&1; then
+        echo "[dotfiles] ✓ Hex verified successfully"
+        return 0
+      else
+        echo "[dotfiles] ✗ Hex installed but verification failed (OTP mismatch?)"
+      fi
+    else
+      echo "[dotfiles] ✗ Hex installation command failed"
+    fi
+
+    attempt=$((attempt + 1))
+  done
+
+  # All attempts failed - provide diagnostics
+  echo "[dotfiles] ERROR: Hex installation failed after $max_attempts attempts"
+  echo "[dotfiles] Diagnostics:"
+  echo "  Elixir: $(elixir --version 2>&1 | grep Elixir || echo 'not found')"
+  echo "  Erlang/OTP: $(erl -eval 'erlang:display(erlang:system_info(otp_release)), halt().' -noshell 2>&1 || echo 'not found')"
+  echo "  Mix: $(mix --version 2>&1 | head -1 || echo 'not found')"
+  if command -v asdf >/dev/null 2>&1; then
+    echo "  asdf versions: $(asdf current 2>&1 | grep -E 'elixir|erlang' || echo 'not found')"
+  fi
+  echo "  Hex archives: $(find ~/.mix /var/lib/asdf -name 'hex-*' -type d 2>/dev/null || echo 'none found')"
+  return 1
+}
+
+# ============================================================
+# Self-correcting Rebar installation
+# ============================================================
+install_rebar_robust() {
+  local max_attempts=2
+  local attempt=1
+
+  while [ $attempt -le $max_attempts ]; do
+    echo "[dotfiles] Installing Rebar (attempt $attempt/$max_attempts)..."
+
+    if mix local.rebar --force; then
+      # Verify Rebar is functional
+      if mix local.rebar --version >/dev/null 2>&1 || command -v rebar3 >/dev/null 2>&1; then
+        echo "[dotfiles] ✓ Rebar verified successfully"
+        return 0
+      else
+        echo "[dotfiles] ✗ Rebar installed but verification failed"
+      fi
+    else
+      echo "[dotfiles] ✗ Rebar installation command failed"
+    fi
+
+    attempt=$((attempt + 1))
+    [ $attempt -le $max_attempts ] && sleep 1
+  done
+
+  echo "[dotfiles] WARNING: Rebar installation failed (continuing anyway)"
+  return 1
+}
+
+# Run installations
+install_hex_robust || {
+  echo "[dotfiles] FATAL: Cannot continue without Hex"
+  exit 1
+}
+
+install_rebar_robust || {
+  echo "[dotfiles] WARNING: Rebar failed but continuing..."
+}
 
 mix archive.install hex igniter_new --force
 mix archive.install hex phx_new 1.8.1 --force
