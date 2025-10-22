@@ -2,7 +2,7 @@
   "mcpServers": {
     "zen": {
       "type": "stdio",
-      "command": "$HOME/.local/bin/uvx",
+      "command": "${HOME}/.local/bin/uvx",
       "args": [
         "--from",
         "git+https://github.com/BeehiveInnovations/zen-mcp-server.git",
