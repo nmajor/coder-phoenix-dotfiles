@@ -75,6 +75,24 @@ else
   echo "[dotfiles] Agent OS directory not found in repo, skipping..."
 fi
 
+# ============================================================
+# Sync Claude Skills directory (exact mirror)
+# ============================================================
+echo "[dotfiles] Syncing Claude Skills..."
+
+if [ -d "$REPO_ROOT/claude-skills" ]; then
+  # Create target directory if it doesn't exist
+  mkdir -p "$HOME/.claude/skills"
+
+  # Sync to match exactly (--delete removes files not in source)
+  rsync -av --delete \
+    "$REPO_ROOT/claude-skills/" "$HOME/.claude/skills/"
+
+  echo "[dotfiles] Claude Skills synced successfully"
+else
+  echo "[dotfiles] Claude Skills directory not found in repo, skipping..."
+fi
+
 # asdf env (optional for the script itself)
 . /etc/profile.d/asdf.sh
 
