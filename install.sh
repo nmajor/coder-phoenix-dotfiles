@@ -86,6 +86,7 @@ if [ -d "$REPO_ROOT/claude-skills" ]; then
 
   # Sync to match exactly (--delete removes files not in source)
   rsync -av --delete \
+    --exclude-from="$REPO_ROOT/.claude-skills-exclude" \
     "$REPO_ROOT/claude-skills/" "$HOME/.claude/skills/"
 
   echo "[dotfiles] Claude Skills synced successfully"
