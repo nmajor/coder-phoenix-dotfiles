@@ -1,19 +1,5 @@
 {
   "mcpServers": {
-    "zen": {
-      "type": "stdio",
-      "command": "${HOME}/.local/bin/uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/BeehiveInnovations/zen-mcp-server.git",
-        "zen-mcp-server"
-      ],
-      "env": {
-        "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
-        "GEMINI_API_KEY": "${GEMINI_API_KEY}",
-        "OPENAI_API_KEY": "${OPENAI_API_KEY}"
-      }
-    },
     "context7": {
       "type": "stdio",
       "command": "npx",
@@ -23,18 +9,6 @@
       "env": {
         "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
       }
-    },
-    "crawl": {
-      "type": "http",
-      "url": "${CRAWL4AI_MCP_URL}/mcp"
-    },
-    "dataforseo": {
-      "type": "http",
-      "url": "${DATAFORSEO_MCP_URL}/mcp"
-    },
-    "playwright": {
-      "type": "http",
-      "url": "${PLAYWRIGHT_MCP_URL}/mcp"
     },
     "tidewave": {
       "type": "http",
