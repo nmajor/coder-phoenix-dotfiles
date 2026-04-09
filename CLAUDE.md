@@ -136,7 +136,8 @@ The `install.sh` script installs the following Elixir/Phoenix ecosystem tools:
 
 ### Node.js Tools (via npm)
 - **bun** - Fast JavaScript runtime (install.sh:107)
-- **@anthropic-ai/claude-code** - Claude Code CLI (install.sh:108)
+- **claude-code** - Claude Code CLI via standalone installer (install.sh:139)
+- **@openai/codex** - OpenAI Codex CLI (install.sh:137)
 
 ## Agent OS Integration
 

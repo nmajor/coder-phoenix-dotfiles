@@ -133,6 +133,9 @@ sed -i '/^# Added by CodeRabbit CLI installer/,$d' "$HOME/.zshrc" # Clean up add
 
 # Install npm packages
 npm install -g bun
-npm install -g @anthropic-ai/claude-code
+npm install -g @openai/codex
+
+# Install Claude Code (standalone installer)
+curl -fsSL https://cli.anthropic.com/install.sh | sh
 
 echo "[dotfiles] Done installing packages"
