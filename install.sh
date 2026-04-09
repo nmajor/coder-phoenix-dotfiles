@@ -133,6 +133,9 @@ sed -i '/^# Added by CodeRabbit CLI installer/,$d' "$HOME/.zshrc" # Clean up add
 
 # Install npm packages
 npm install -g bun
+# Install bubblewrap (required by Codex CLI for sandboxing)
+sudo apt-get install -y bubblewrap 2>/dev/null || true
+
 npm install -g @openai/codex
 
 # Install Claude Code (standalone installer)
