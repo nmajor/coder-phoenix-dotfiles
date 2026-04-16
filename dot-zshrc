@@ -58,7 +58,7 @@ if command -v starship >/dev/null 2>&1; then
 fi
 
 # Set default directory to app folder (if not already there)
-if [ "$PWD" != "$HOME/app" ]; then
+if [ "$PWD" = "$HOME" ]; then
     mkdir -p "$HOME/app"
     cd "$HOME/app"
 fi
