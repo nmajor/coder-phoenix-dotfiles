@@ -1,0 +1,15 @@
+# Codex CLI config — symlinked to ~/.codex/config.toml by install.sh
+
+# Playwright MCP — points at the sidecar started by the Coder template (port 11666).
+# If this version of codex does not support `url` for MCP servers, swap to a stdio
+# bridge:
+#   [mcp_servers.playwright]
+#   command = "npx"
+#   args    = ["-y", "mcp-remote", "http://localhost:11666/mcp"]
+[mcp_servers.playwright]
+url = "http://localhost:11666/mcp"
+
+[mcp_servers.context7]
+command = "npx"
+args    = ["-y", "@upstash/context7-mcp@latest"]
+env     = { CONTEXT7_API_KEY = "${CONTEXT7_API_KEY}" }

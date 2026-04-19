@@ -13,6 +13,10 @@
     "tidewave": {
       "type": "http",
       "url": "http://localhost:4000/tidewave/mcp"
+    },
+    "playwright": {
+      "type": "http",
+      "url": "http://localhost:11666/mcp"
     }
   }
 }
